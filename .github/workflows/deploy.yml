@@ -25,3 +25,20 @@ jobs:
         service_account: github-deployer@collect-devops-496312.iam.gserviceaccount.com
     - uses: google-github-actions/setup-gcloud@v2
     - run: gcloud auth list
+    - run: |
+        gcloud auth configure-docker \
+        europe-west1-docker.pkg.dev
+
+    - run: |
+        docker build \
+        -t europe-west1-docker.pkg.dev/$PROJECT_ID/github-demo/app:latest .
+
+    - run: |
+        docker push \
+        europe-west1-docker.pkg.dev/$PROJECT_ID/github-demo/app:latest
+
+    - run: |
+        gcloud run deploy github-demo \
+        --image=europe-west1-docker.pkg.dev/$PROJECT_ID/github-demo/app:latest \
+        --region=$REGION \
+        --allow-unauthenticated
